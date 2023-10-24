@@ -3,6 +3,6 @@ import { generateEmail } from '../controllers/email'
 
 const router = express.Router()
 
-router.post('/generate', generateEmail)
+router.post('/', generateEmail)
 
 export default router
