@@ -4,11 +4,13 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import { startAgenda } from './configs/agenda'
 import emailRouter from './routes/email'
+import cors from 'cors'
 
 dotenv.config()
 
 const app = express()
 
+app.use(cors({ origin: 'http://localhost:3000' }))
 app.use(compression())
 app.use(bodyParser.json())
 app.disable('x-powered-by')
