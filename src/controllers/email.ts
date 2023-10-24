@@ -27,7 +27,9 @@ export const generateEmail = async (req: Request, res: Response) => {
   try {
     if (body) {
       body = body.replace('[Your Name]', name)
+      body = body.replace('\n', '<br>')
       console.log(body, 'body')
+
       const job = await sendEmail(email, body, name, date)
       if (job) {
         res.status(200).json({ success: true })
@@ -50,7 +52,7 @@ const generateEmailBody = async (topic: string, answers: string) => {
 }
 
 const generateChatGPTPrompt = (topic: string, answers: string) => {
-  let prompt = 'Compose an email will be send the future self without subject in HTML format with the following content \n'
+  let prompt = 'Compose a letter will be send the future self without subject and salutation and add new line tag for each paragraph with the following content. The output should below 250 words \n '
   const choseTopic = topics.filter((t) => t.name !== topic)[0]
 
   const choseQuestions = questions[choseTopic.id]
@@ -59,7 +61,7 @@ const generateChatGPTPrompt = (topic: string, answers: string) => {
 
   prompt = `${prompt}Questions\n${questionsStr}`
 
-  prompt = `${prompt}Answers\n${answers}`
+  prompt = `${prompt}\nAnswers\n${answers}`
 
   console.log(prompt, 'prompt')
   return prompt
@@ -85,7 +87,7 @@ const generateDate = (option: string) => {
     case 'surprise':
       return generateRandom(14, 60)
     default:
-      return generateRandom(1, 2)
+      return generateRandom(0, 1)
   }
 }
 
@@ -122,13 +124,49 @@ const mailJob = async (job: Job<JobData>, done: (error?: Error) => void) => {
             Name: name
           }
         ],
-        Subject: 'A Letter to My Future Self',
-        HTMLPart: body
+        TemplateID: 5212937,
+        TemplateLanguage: true,
+        Variables: {
+          name,
+          body
+        }
       }
     ]
   })
   done()
 }
+
+// const sendTestEmail = (email: string, body: string, name: string) => {
+//   const mailjet = new Mailjet({
+//     apiKey: process.env.MAILJET_API_KEY,
+//     apiSecret: process.env.MAILJET_API_SECRET
+//   })
+
+//   mailjet.post('send', { version: 'v3.1' }).request({
+//     Messages: [
+//       {
+//         From: {
+//           Email: 'mail.me@lexiechoi.com',
+//           Name: 'Mail Me'
+//         },
+//         To: [
+//           {
+//             Email: email,
+//             Name: name
+//           }
+//         ],
+//         // Subject: 'A Letter to My Future Self',
+//         TemplateID: 5212937,
+//         TemplateLanguage: true,
+//         Variables: {
+//           name,
+//           body
+//         }
+//       }
+//     ]
+//   })
+// }
+
 export const defineJob = async () => {
   agenda.define('sendEmail', mailJob)
 
