@@ -17,6 +17,9 @@ interface JobData {
 
 export const generateEmail = async (req: Request, res: Response) => {
   const { email, topic, answers, firstName, lastName, date } = req.body
+  if (!email || !date || !answers) {
+    return res.status(400).json({ error: 'Missing properties. Email, date and answers are required' })
+  }
 
   const name = `${firstName} ${lastName}`
   let body = await generateEmailBody(topic, answers)
