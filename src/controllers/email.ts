@@ -16,12 +16,12 @@ interface JobData {
 }
 
 export const generateEmail = async (req: Request, res: Response) => {
-  const { email, topic, answers, firstName, lastName, date } = req.body
+  const { email, topic, answers, firstname, lastname, date } = req.body
   if (!email || !date || !answers) {
     return res.status(400).json({ error: 'Missing properties. Email, date and answers are required' })
   }
 
-  const name = `${firstName} ${lastName}`
+  const name = `${firstname} ${lastname}`
   let body = await generateEmailBody(topic, answers)
 
   try {
@@ -41,7 +41,7 @@ export const generateEmail = async (req: Request, res: Response) => {
   }
 }
 
-const generateEmailBody = async (topic: string, answers: string) => {
+const generateEmailBody = async (topic: number, answers: string) => {
   const chatCompletion = await openai.chat.completions.create({
     messages: [{
       role: 'user', content: generateChatGPTPrompt(topic, answers)
@@ -51,9 +51,9 @@ const generateEmailBody = async (topic: string, answers: string) => {
   return chatCompletion?.choices[0]?.message?.content
 }
 
-const generateChatGPTPrompt = (topic: string, answers: string) => {
+const generateChatGPTPrompt = (topic: number, answers: string) => {
   let prompt = 'Compose a letter will be send the future self without subject and salutation and add new line tag for each paragraph with the following content. The output should below 250 words \n '
-  const choseTopic = topics.filter((t) => t.name !== topic)[0]
+  const choseTopic = topics.filter((t) => t.id === topic)[0]
 
   const choseQuestions = questions[choseTopic.id]
 
