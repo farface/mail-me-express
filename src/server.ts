@@ -10,7 +10,10 @@ dotenv.config()
 
 const app = express()
 
-app.use(cors({ origin: '*' }))
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://mailme-omega.vercel.app'],
+  methods: ['POST']
+}))
 app.use(compression())
 app.use(bodyParser.json())
 app.disable('x-powered-by')
