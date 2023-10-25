@@ -27,7 +27,12 @@ export const generateEmail = async (req: Request, res: Response) => {
   try {
     if (body) {
       body = body.replace('[Your Name]', name)
-      body = body.replace('\n', '<br>')
+      body = body.replace('(Your Name)', name)
+      body = body.replace('Hey future self,', '')
+      body = body.replace('Dear future self,', '')
+      body = body.replace('Hi,', '')
+      body = body.replace('hi,', '')
+      body = body.replace('Hey,', '')
       console.log(body, 'body')
 
       const job = await sendEmail(email, body, name, date)
@@ -46,13 +51,20 @@ const generateEmailBody = async (topic: number, answers: string) => {
     messages: [{
       role: 'user', content: generateChatGPTPrompt(topic, answers)
     }],
-    model: 'gpt-3.5-turbo'
+    model: 'gpt-3.5-turbo',
+    temperature: 0.7,
+    top_p: 0.7
   })
   return chatCompletion?.choices[0]?.message?.content
 }
 
 const generateChatGPTPrompt = (topic: number, answers: string) => {
-  let prompt = 'Compose a letter will be send the future self without subject and salutation and add new line tag for each paragraph with the following content. The output should below 250 words \n '
+  let prompt = `Compose a letter will be send the future self with the following content.\n 
+  Requirements: 
+  1. Do not generate subject and opening salutation (e.g. remove "Hey future self," )
+  2. Add new line tag for each paragraph
+  3. Do not include the word "Questions", "Question", "Answers" and "Answer"
+  4. Generate the answer in complete sentence`
   const choseTopic = topics.filter((t) => t.id === topic)[0]
 
   const choseQuestions = questions[choseTopic.id]
@@ -87,7 +99,7 @@ const generateDate = (option: string) => {
     case 'surprise':
       return generateRandom(14, 60)
     default:
-      return generateRandom(0, 1)
+      return 0
   }
 }
 
