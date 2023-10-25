@@ -51,9 +51,7 @@ const generateEmailBody = async (topic: number, answers: string) => {
     messages: [{
       role: 'user', content: generateChatGPTPrompt(topic, answers)
     }],
-    model: 'gpt-3.5-turbo',
-    temperature: 0.7,
-    top_p: 0.7
+    model: 'gpt-3.5-turbo'
   })
   return chatCompletion?.choices[0]?.message?.content
 }
@@ -64,7 +62,8 @@ const generateChatGPTPrompt = (topic: number, answers: string) => {
   1. Do not generate subject and opening salutation (e.g. remove "Hey future self," )
   2. Add new line tag for each paragraph
   3. Do not include the word "Questions", "Question", "Answers" and "Answer"
-  4. Generate the answer in complete sentence`
+  4. Generate the answer and question in complete sentence.
+  5. Include answers in the generated content`
   const choseTopic = topics.filter((t) => t.id === topic)[0]
 
   const choseQuestions = questions[choseTopic.id]
@@ -104,7 +103,10 @@ const generateDate = (option: string) => {
 }
 
 export const sendEmail = async (email: string, body: string, name: string, sendingDate: string) => {
-  const scheduleTime = add(new Date(), { minutes: generateDate(sendingDate) })
+  let scheduleTime = new Date()
+  if (generateDate(sendingDate) !== 0) {
+    scheduleTime = add(new Date(), { minutes: generateDate(sendingDate) })
+  }
   console.log(scheduleTime.toLocaleTimeString())
 
   const job = await agenda.schedule(scheduleTime, 'sendEmail', { email, body, name, sendingDate })
