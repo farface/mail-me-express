@@ -105,7 +105,7 @@ const generateDate = (option: string) => {
 export const sendEmail = async (email: string, body: string, name: string, sendingDate: string) => {
   let scheduleTime = new Date()
   if (generateDate(sendingDate) !== 0) {
-    scheduleTime = add(new Date(), { minutes: generateDate(sendingDate) })
+    scheduleTime = add(new Date(), { days: generateDate(sendingDate) })
   }
   console.log(scheduleTime.toLocaleTimeString())
 
