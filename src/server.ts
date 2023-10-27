@@ -11,8 +11,7 @@ dotenv.config()
 const app = express()
 
 app.use(cors({
-  origin: ['*'],
-  methods: ['POST']
+  origin: '*'
 }))
 app.use(compression())
 app.use(bodyParser.json())
